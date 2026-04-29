@@ -1,0 +1,121 @@
+import 'dart:io';
+import 'package:flutter/services.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'dart:ui' as ui;
+
+class PdfGenerator {
+  static Future<void> generateAndShareChaturseema({
+    required Map<String, dynamic> data,
+  }) async {
+    final pdf = pw.Document();
+
+    // Load a Hindi compatible font (e.g., NotoSansDevanagari)
+    // Ensure you have added this font to your pubspec.yaml assets!
+    final fontData = await rootBundle.load('assets/fonts/NotoSansDevanagari-Regular.ttf');
+    final ttf = pw.Font.ttf(fontData);
+
+    // Generate QR code image
+    final qrValidationResult = QrValidator.validate(
+      data: 'Verify at: https://example.com/verify/${data['id'] ?? 'unknown'}',
+      version: QrVersions.auto,
+      errorCorrectionLevel: QrErrorCorrectLevel.L,
+    );
+    
+    pw.MemoryImage? qrImage;
+    if (qrValidationResult.status == QrValidationStatus.valid) {
+      final qrCode = qrValidationResult.qrCode;
+      final painter = QrPainter.withQr(
+        qr: qrCode!,
+        color: const Color(0xFF000000),
+        emptyColor: const Color(0xFFFFFFFF),
+        gapless: true,
+      );
+      final picData = await painter.toImageData(200, format: ui.ImageByteFormat.png);
+      if (picData != null) {
+        qrImage = pw.MemoryImage(picData.buffer.asUint8List());
+      }
+    }
+
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.a4,
+        margin: pw.EdgeInsets.all(32),
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Header(
+                level: 0,
+                child: pw.Center(
+                  child: pw.Text(
+                    'चतुर्सीमा प्रमाण पत्र',
+                    style: pw.TextStyle(font: ttf, fontSize: 24, fontWeight: pw.FontWeight.bold),
+                  ),
+                ),
+              ),
+              pw.SizedBox(height: 20),
+              pw.Text('ज़िला: ${data['district']}', style: pw.TextStyle(font: ttf, fontSize: 14)),
+              pw.Text('तहसील: ${data['tehsil']}', style: pw.TextStyle(font: ttf, fontSize: 14)),
+              pw.Text('रा.नि.मं.: ${data['riCircle']}', style: pw.TextStyle(font: ttf, fontSize: 14)),
+              pw.Text('प.ह.न.: ${data['halkaNumber']}', style: pw.TextStyle(font: ttf, fontSize: 14)),
+              pw.Text('ग्राम: ${data['village']}', style: pw.TextStyle(font: ttf, fontSize: 14)),
+              pw.SizedBox(height: 20),
+              pw.Divider(),
+              pw.SizedBox(height: 10),
+              pw.Text('खातेदार का नाम: ${data['applicantName']}', style: pw.TextStyle(font: ttf, fontSize: 16)),
+              pw.Text('पिता/पति का नाम: ${data['relationName']}', style: pw.TextStyle(font: ttf, fontSize: 16)),
+              pw.Text('जाति: ${data['caste']}', style: pw.TextStyle(font: ttf, fontSize: 16)),
+              pw.SizedBox(height: 10),
+              pw.Text('खसरा क्रमांक: ${data['khasraNumber']}', style: pw.TextStyle(font: ttf, fontSize: 16)),
+              pw.Text('रकबा: ${data['area']} ${data['areaUnit']}', style: pw.TextStyle(font: ttf, fontSize: 16)),
+              pw.SizedBox(height: 20),
+              pw.Text('चतुर्सीमा (Boundaries):', style: pw.TextStyle(font: ttf, fontSize: 16, fontWeight: pw.FontWeight.bold)),
+              pw.Text('उत्तर (North): ${data['boundaryNorth']}', style: pw.TextStyle(font: ttf, fontSize: 14)),
+              pw.Text('दक्षिण (South): ${data['boundarySouth']}', style: pw.TextStyle(font: ttf, fontSize: 14)),
+              pw.Text('पूर्व (East): ${data['boundaryEast']}', style: pw.TextStyle(font: ttf, fontSize: 14)),
+              pw.Text('पश्चिम (West): ${data['boundaryWest']}', style: pw.TextStyle(font: ttf, fontSize: 14)),
+              
+              pw.Spacer(),
+              
+              pw.Row(
+                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                 crossAxisAlignment: pw.CrossAxisAlignment.end,
+                 children: [
+                   if (qrImage != null)
+                     pw.Container(
+                       width: 80,
+                       height: 80,
+                       child: pw.Image(qrImage),
+                     )
+                   else
+                     pw.SizedBox(width: 80, height: 80),
+                     
+                   pw.Column(
+                     crossAxisAlignment: pw.CrossAxisAlignment.center,
+                     children: [
+                       pw.SizedBox(height: 40),
+                       pw.Text('हस्ताक्षर पटवारी', style: pw.TextStyle(font: ttf, fontSize: 14)),
+                       pw.SizedBox(height: 5),
+                       pw.Text('प.ह.न. ${data['halkaNumber']}', style: pw.TextStyle(font: ttf, fontSize: 14)),
+                     ]
+                   )
+                 ]
+              )
+            ],
+          );
+        },
+      ),
+    );
+
+    // Save and Share
+    final output = await getTemporaryDirectory();
+    final file = File('${output.path}/chaturseema_${data['khasraNumber']}.pdf');
+    await file.writeAsBytes(await pdf.save());
+
+    await Share.shareXFiles([XFile(file.path)], text: 'Chaturseema for Khasra ${data['khasraNumber']}');
+  }
+}
