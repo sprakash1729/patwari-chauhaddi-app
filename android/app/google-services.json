@@ -1,0 +1,145 @@
+{
+  "project_info": {
+    "project_number": "387582206707",
+    "project_id": "laundrygogo-sp1729",
+    "storage_bucket": "laundrygogo-sp1729.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:387582206707:android:08d7a07f96f0936f288d86",
+        "android_client_info": {
+          "package_name": "com.chauhaddi.korba"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "387582206707-fije9b29dvkvdjlfa67b0d1eh035ur8k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgtdQxJdkUVc12pE64bIPmWGw_y3PtUhY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "387582206707-fije9b29dvkvdjlfa67b0d1eh035ur8k.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:387582206707:android:1ae199613f5dcb28288d86",
+        "android_client_info": {
+          "package_name": "com.laundrygogo.staff"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "387582206707-5oc3r7cm5g18ro47vnlo32n5d3mj0g8l.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.laundrygogo.staff",
+            "certificate_hash": "fecc12e74ecbc4799bfe204ffe4895d0166fe6de"
+          }
+        },
+        {
+          "client_id": "387582206707-6jk2bvitfl4fvungescsil0eubuk1qov.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.laundrygogo.staff",
+            "certificate_hash": "53799245e91ba36306fdb809dd203ca6672f3ebd"
+          }
+        },
+        {
+          "client_id": "387582206707-robug2t9aqa6n4ttv2bskn76uktdgr7i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.laundrygogo.staff",
+            "certificate_hash": "953adc8b639acdbc6cf3842f2358d07655aa46f9"
+          }
+        },
+        {
+          "client_id": "387582206707-fije9b29dvkvdjlfa67b0d1eh035ur8k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgtdQxJdkUVc12pE64bIPmWGw_y3PtUhY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "387582206707-fije9b29dvkvdjlfa67b0d1eh035ur8k.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:387582206707:android:5a686fba0640c9df288d86",
+        "android_client_info": {
+          "package_name": "com.laundrygogo.user"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "387582206707-gdjmb4so3edjnik8p4om9if7ukm36hjb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.laundrygogo.user",
+            "certificate_hash": "fecc12e74ecbc4799bfe204ffe4895d0166fe6de"
+          }
+        },
+        {
+          "client_id": "387582206707-t8v0sim59k36ijlosh2c0ppvr7578f9g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.laundrygogo.user",
+            "certificate_hash": "953adc8b639acdbc6cf3842f2358d07655aa46f9"
+          }
+        },
+        {
+          "client_id": "387582206707-uutca6cns0oo5rlja2nej69ok2djcmt1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.laundrygogo.user",
+            "certificate_hash": "53799245e91ba36306fdb809dd203ca6672f3ebd"
+          }
+        },
+        {
+          "client_id": "387582206707-fije9b29dvkvdjlfa67b0d1eh035ur8k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgtdQxJdkUVc12pE64bIPmWGw_y3PtUhY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "387582206707-fije9b29dvkvdjlfa67b0d1eh035ur8k.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
