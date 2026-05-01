@@ -4,9 +4,11 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import '../providers/patwari_provider.dart';
 import 'profile_setup_screen.dart';
-import 'home_screen.dart'; // Create your Home Screen
+import 'history_screen.dart';
 
 class AuthScreen extends StatefulWidget {
+  const AuthScreen({super.key});
+
   @override
   _AuthScreenState createState() => _AuthScreenState();
 }
@@ -49,6 +51,7 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Future<void> _verifyPhone() async {
+    if (_phoneController.text.trim().isEmpty) return;
     _setLoading(true);
     await _auth.verifyPhoneNumber(
       phoneNumber: '+91${_phoneController.text.trim()}',
@@ -75,6 +78,7 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Future<void> _signInWithOtp() async {
+    if (_otpController.text.trim().isEmpty) return;
     try {
       _setLoading(true);
       PhoneAuthCredential credential = PhoneAuthProvider.credential(
@@ -86,7 +90,7 @@ class _AuthScreenState extends State<AuthScreen> {
     } catch (e) {
       print("OTP Sign In Error: $e");
       _setLoading(false);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Invalid OTP')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid OTP')));
     }
   }
 
@@ -101,7 +105,7 @@ class _AuthScreenState extends State<AuthScreen> {
     if (provider.profile == null) {
       Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => ProfileSetupScreen()));
     } else {
-      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => HomeScreen()));
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => HistoryScreen()));
     }
   }
 
@@ -115,76 +119,205 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        title: Text('Chaturseema Login'),
-        elevation: 0,
-      ),
-      body: Center(
+      backgroundColor: const Color(0xFFF5F7F7),
+      body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(24.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Icon(Icons.map_outlined, size: 80, color: Theme.of(context).primaryColor),
-              SizedBox(height: 32),
+              // Logo Section
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.explore_outlined,
+                  size: 64,
+                  color: Color(0xFF006064),
+                ),
+              ),
+              const SizedBox(height: 32),
+              const Text(
+                'Welcome to Patwari',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1A1C1E),
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Enter your credentials to manage land boundaries.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Color(0xFF74777F),
+                ),
+              ),
+              const SizedBox(height: 48),
+              
               if (_isLoading)
-                 Center(child: CircularProgressIndicator())
+                 const Center(child: CircularProgressIndicator(color: Color(0xFF006064)))
               else if (!_isOtpSent) ...[
+                // Phone Input
                 TextField(
                   controller: _phoneController,
-                  decoration: InputDecoration(
-                    labelText: 'Phone Number', 
-                    prefixText: '+91 ',
-                    border: OutlineInputBorder(),
-                  ),
                   keyboardType: TextInputType.phone,
+                  decoration: InputDecoration(
+                    labelText: 'Phone Number',
+                    prefixIcon: const Padding(
+                      padding: EdgeInsets.all(12.0),
+                      child: Text(
+                        '+91 ',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                    prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFC4C7C5)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFF006064), width: 2),
+                    ),
+                  ),
                 ),
-                SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: _verifyPhone,
-                  style: ElevatedButton.styleFrom(padding: EdgeInsets.symmetric(vertical: 16)),
-                  child: Text('Get OTP', style: TextStyle(fontSize: 16)),
+                const SizedBox(height: 24),
+                
+                // Get OTP Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: _verifyPhone,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF006064),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 2,
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Get OTP',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(width: 8),
+                        Icon(Icons.arrow_forward),
+                      ],
+                    ),
+                  ),
                 ),
               ] else ...[
+                // OTP Input
                 TextField(
                   controller: _otpController,
+                  keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     labelText: 'Enter OTP',
-                    border: OutlineInputBorder(),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFC4C7C5)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFF006064), width: 2),
+                    ),
                   ),
-                  keyboardType: TextInputType.number,
                 ),
-                SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: _signInWithOtp,
-                  style: ElevatedButton.styleFrom(padding: EdgeInsets.symmetric(vertical: 16)),
-                  child: Text('Verify OTP', style: TextStyle(fontSize: 16)),
+                const SizedBox(height: 24),
+                
+                // Verify OTP Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: _signInWithOtp,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF006064),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 2,
+                    ),
+                    child: const Text('Verify OTP', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  ),
                 ),
                 TextButton(
                   onPressed: () => setState(() { _isOtpSent = false; _otpController.clear(); }),
-                  child: Text('Change Phone Number'),
+                  child: const Text('Change Phone Number', style: TextStyle(color: Color(0xFF006064))),
                 )
               ],
-              SizedBox(height: 32),
-              Row(
+
+              const SizedBox(height: 32),
+              const Row(
                 children: [
-                   Expanded(child: Divider()),
-                   Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text("OR")),
-                   Expanded(child: Divider()),
-                ]
+                  Expanded(child: Divider()),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: Text('Or continue with', style: TextStyle(color: Color(0xFF74777F))),
+                  ),
+                  Expanded(child: Divider()),
+                ],
               ),
-              SizedBox(height: 32),
-              OutlinedButton.icon(
-                icon: Icon(Icons.login),
-                label: Text('Continue with Google'),
-                onPressed: _isLoading ? null : _signInWithGoogle,
-                style: OutlinedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  foregroundColor: Colors.black87,
+              const SizedBox(height: 32),
+              
+              // Google Button
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: OutlinedButton(
+                  onPressed: _isLoading ? null : _signInWithGoogle,
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Color(0xFFC4C7C5)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.network(
+                        'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png',
+                        height: 24,
+                      ),
+                      const SizedBox(width: 12),
+                      const Text(
+                        'Continue with Google',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF1A1C1E),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              )
+              ),
             ],
           ),
         ),

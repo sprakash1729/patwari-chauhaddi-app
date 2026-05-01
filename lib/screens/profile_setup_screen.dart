@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../providers/patwari_provider.dart';
-import '../models/patwari_model.dart';
-import 'home_screen.dart'; // Implement this separately
+import '../model/patwari_model.dart';
+import 'history_screen.dart';
 
 class ProfileSetupScreen extends StatefulWidget {
+  const ProfileSetupScreen({super.key});
+
   @override
   _ProfileSetupScreenState createState() => _ProfileSetupScreenState();
 }
@@ -13,8 +15,8 @@ class ProfileSetupScreen extends StatefulWidget {
 class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _districtController = TextEditingController(text: 'Korba');
-  final TextEditingController _tehsilController = TextEditingController(text: 'Korba');
+  final TextEditingController _districtController = TextEditingController(text: 'कोरबा');
+  final TextEditingController _tehsilController = TextEditingController(text: 'कोरबा');
   final TextEditingController _riCircleController = TextEditingController();
   final TextEditingController _halkaNumbersController = TextEditingController();
   final TextEditingController _villagesController = TextEditingController();
@@ -43,7 +45,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       try {
         await Provider.of<PatwariProvider>(context, listen: false).saveProfile(profile);
         if (!mounted) return;
-        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => HomeScreen()));
+        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const HistoryScreen()));
       } catch (e) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error saving profile: $e')));
@@ -66,74 +68,220 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    const primaryTeal = Color(0xFF006064);
+    const bgColor = Color(0xFFF5F7F7);
+    
     return Scaffold(
-      appBar: AppBar(title: Text('Patwari Profile Setup')),
+      backgroundColor: bgColor,
+      appBar: AppBar(
+        title: const Text('Profile Setup'),
+        backgroundColor: primaryTeal,
+        foregroundColor: Colors.white,
+        elevation: 0,
+      ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(20.0),
         child: Form(
           key: _formKey,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Please complete your profile to continue", style: Theme.of(context).textTheme.titleMedium),
-              SizedBox(height: 24),
-              TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(labelText: 'Full Name', border: OutlineInputBorder()),
-                validator: (value) => value == null || value.isEmpty ? 'Enter your name' : null,
-              ),
-              SizedBox(height: 16),
-              TextFormField(
-                controller: _districtController,
-                decoration: InputDecoration(labelText: 'District', border: OutlineInputBorder()),
-                readOnly: true, // Korba by default based on spec
-                validator: (value) => value == null || value.isEmpty ? 'Enter district' : null,
-              ),
-              SizedBox(height: 16),
-              TextFormField(
-                controller: _tehsilController,
-                decoration: InputDecoration(labelText: 'Tehsil', border: OutlineInputBorder()),
-                readOnly: true, // Korba by default based on spec
-                validator: (value) => value == null || value.isEmpty ? 'Enter tehsil' : null,
-              ),
-              SizedBox(height: 16),
-              TextFormField(
-                controller: _riCircleController,
-                decoration: InputDecoration(labelText: 'Revenue Inspector Circle (रा.नि.मं.)', border: OutlineInputBorder()),
-                validator: (value) => value == null || value.isEmpty ? 'Enter RI Circle' : null,
-              ),
-              SizedBox(height: 16),
-              TextFormField(
-                controller: _halkaNumbersController,
-                decoration: InputDecoration(
-                  labelText: 'Halka Numbers (प.ह.न.)', 
-                  hintText: 'e.g. 12, 14, 15',
-                  border: OutlineInputBorder()
+              const Text(
+                'Welcome!',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1A1C1E),
                 ),
-                validator: (value) => value == null || value.isEmpty ? 'Enter at least one Halka Number' : null,
               ),
-              SizedBox(height: 16),
-              TextFormField(
-                controller: _villagesController,
-                decoration: InputDecoration(
-                  labelText: 'Assigned Villages', 
-                  hintText: 'e.g. Rampur, Sitapur',
-                  border: OutlineInputBorder()
+              const SizedBox(height: 8),
+              const Text(
+                'Please complete your profile details to continue.',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Color(0xFF74777F),
                 ),
-                validator: (value) => value == null || value.isEmpty ? 'Enter at least one Village' : null,
               ),
-              SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: _isSaving ? null : _saveProfile,
-                style: ElevatedButton.styleFrom(padding: EdgeInsets.symmetric(vertical: 16)),
-                child: _isSaving 
-                   ? CircularProgressIndicator(color: Colors.white) 
-                   : Text('Save Profile', style: TextStyle(fontSize: 16)),
-              )
+              const SizedBox(height: 32),
+              
+              // Personal Information Card
+              _buildSectionCard(
+                title: 'Personal Details',
+                children: [
+                  _buildTextField(
+                    label: 'Full Name', 
+                    hint: 'Enter your full name',
+                    controller: _nameController,
+                    validator: (value) => value == null || value.isEmpty ? 'Enter your name' : null,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              
+              // Location Information Card
+              _buildSectionCard(
+                title: 'Official Location',
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildTextField(
+                          label: 'District', 
+                          hint: 'कोरबा',
+                          controller: _districtController,
+                          validator: (value) => value == null || value.isEmpty ? 'Enter district' : null,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _buildTextField(
+                          label: 'Tehsil', 
+                          hint: 'कोरबा',
+                          controller: _tehsilController,
+                          validator: (value) => value == null || value.isEmpty ? 'Enter tehsil' : null,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              
+              // Jurisdiction Information Card
+              _buildSectionCard(
+                title: 'Jurisdiction & Assignment',
+                children: [
+                  _buildTextField(
+                    label: 'Revenue Inspector Circle (रा.नि.मं.)', 
+                    hint: 'Enter RI Circle',
+                    controller: _riCircleController,
+                    validator: (value) => value == null || value.isEmpty ? 'Enter RI Circle' : null,
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    label: 'Halka Numbers (प.ह.न.)', 
+                    hint: 'e.g. 12, 14, 15',
+                    controller: _halkaNumbersController,
+                    validator: (value) => value == null || value.isEmpty ? 'Enter at least one Halka Number' : null,
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    label: 'Assigned Villages', 
+                    hint: 'e.g. Rampur, Sitapur',
+                    maxLines: 2,
+                    controller: _villagesController,
+                    validator: (value) => value == null || value.isEmpty ? 'Enter at least one Village' : null,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 40),
+              
+              // Save Button
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton(
+                  onPressed: _isSaving ? null : _saveProfile,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryTeal,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 2,
+                  ),
+                  child: _isSaving 
+                     ? const CircularProgressIndicator(color: Colors.white) 
+                     : const Text(
+                         'Save Profile',
+                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                       ),
+                ),
+              ),
+              const SizedBox(height: 40),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildSectionCard({required String title, required List<Widget> children}) {
+    return Card(
+      elevation: 2,
+      shadowColor: Colors.black12,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title.toUpperCase(),
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.1,
+                color: Color(0xFF006064),
+              ),
+            ),
+            const Divider(height: 24),
+            ...children,
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required String label, 
+    required String hint, 
+    required TextEditingController controller,
+    required String? Function(String?) validator,
+    int maxLines = 1,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF44474E),
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextFormField( // Changed from TextField to TextFormField for validation
+          controller: controller,
+          validator: validator,
+          maxLines: maxLines,
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: const TextStyle(color: Color(0xFFC4C7C5)),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: Color(0xFFC4C7C5)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: Color(0xFF006064), width: 2),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: Colors.red, width: 1.5),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: Colors.red, width: 2),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

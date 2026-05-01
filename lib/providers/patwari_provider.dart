@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../models/patwari_model.dart';
+import 'package:firebase_core/firebase_core.dart';
+import '../model/patwari_model.dart';
 
 class PatwariProvider with ChangeNotifier {
   PatwariProfile? _profile;
@@ -10,7 +11,7 @@ class PatwariProvider with ChangeNotifier {
   PatwariProfile? get profile => _profile;
   bool get isLoading => _isLoading;
 
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instanceFor(app: Firebase.app(), databaseId: 'patwari');
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<void> fetchProfile() async {
